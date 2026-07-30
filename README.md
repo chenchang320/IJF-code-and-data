@@ -4,9 +4,7 @@ Lv jian, Chenxu Wang and Wenyong Yuan
 
 ## Overview & contents
 
-The code in this replication material generates the 56 figures and 9 tables for
-the paper "High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constrains".
-However, since the main research strategy itself has no other differences except for the cut-off point, the image generation is placed in the same code file. The specific differences can be simply adjusted by modifying the input objects and time lengths of the functions within the file.The data in the table can be presented through output display. However, to ensure accuracy, we use manual input for this part. The processing form for this section can be freely selected.
+The replication code provided herein is designed to generate all 56 figures and 9 tables presented in the paper “High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constraints”. The empirical strategy remains consistent throughout, with the sole variation being the selection of truncation points. To accommodate this, all graphical outputs are produced within a unified script, where the key distinctions are governed by adjustable parameters—specifically, the input objects and the length of the estimation window—within the respective functions. Regarding the tabular results, while they can be directly outputted from the code, we opt for manual transcription to ensure the utmost accuracy and to allow for flexible post-hoc formatting adjustments.===
 
 In terms of content, the specific positions of the pictures and tables are matched as follows：
 
@@ -20,9 +18,9 @@ In terms of content, the specific positions of the pictures and tables are match
 
 ## Instructions & computational requirements.
 
-For the sake of uniformity, all data file paths have been set as the absolute paths of the work computer. Please download the data files and then set your absolute path accordingly.===
+For consistency, all file paths in the code are specified as absolute paths referencing our local working environment. Users are therefore advised to download the data files and reconfigure these paths to match their own directory structures.===
 
-Since intermediate data will be generated during the operation, to avoid any errors during the process, it is more recommended to conduct the tests in the order of the uploaded code.===
+Additionally, as the routine generates intermediate datasets during execution, we strongly recommend running the scripts sequentially in the order they are provided to prevent potential runtime errors.===
 
 These analyses were run on R 4.3.1, and we explicitly use the following packages in the analysis files: `triptych` (0.1.2), `ggplot2` (3.4.3), `patchwork` (1.1.3), `dplyr` (1.1.3), `tidyr` (1.3.0), `purrr` (1.0.2), `grid` (base R), `lubridate` (1.9.2).
 
@@ -36,6 +34,6 @@ renv::status() # check environment
 
 ## Data availability and provenance
 
-All the data are presented in tabular form, without any restrictions or limitations. Just use them directly.===
+All data necessary for replicating the empirical results are provided in tabular format within this replication package, with no access restrictions or usage limitations. These data are ready for direct use in the accompanying code.===
 
 
