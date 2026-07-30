@@ -6,7 +6,7 @@ Lv jian, Chenxu Wang and Wenyong Yuan
 
 The replication code provided herein is designed to generate all 56 figures and 9 tables presented in the paper “High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constraints”. The empirical strategy remains consistent throughout, with the sole variation being the selection of truncation points. To accommodate this, all graphical outputs are produced within a unified script, where the key distinctions are governed by adjustable parameters—specifically, the input objects and the length of the estimation window—within the respective functions. Regarding the tabular results, while they can be directly outputted from the code, we opt for manual transcription to ensure the utmost accuracy and to allow for flexible post-hoc formatting adjustments.===
 
-In terms of content, the specific positions of the pictures and tables are matched as follows：
+The following list specifies the correspondence between each figure/table and the code file from which it is generated：===
 
 - `plots/`: folder of generated plots as PDF files
 - `tables/`: folder of generated tables as txt files
