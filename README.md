@@ -4,12 +4,11 @@ Lv jian, Chenxu Wang and Wenyong Yuan
 
 ## Overview & contents
 
-The code in this replication material generates the 12 figures and 3 tables for
+The code in this replication material generates the 56 figures and 9 tables for
 the paper "High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constrains".
-Each figure and table is generated separately by its corresponding script file
-`Figure_[xx]_*.R` or `Table_[xx]_*.R`, respectively.
+However, since the main research strategy itself has no other differences except for the cut-off point, the image generation is placed in the same code file. The specific differences can be simply adjusted by modifying the input objects and time lengths of the functions within the file.The data in the table can be presented through output display. However, to ensure accuracy, we use manual input for this part. The processing form for this section can be freely selected.
 
-The main contents of the repository are the following:
+In terms of content, the specific positions of the pictures and tables are matched as follows：
 
 - `plots/`: folder of generated plots as PDF files
 - `tables/`: folder of generated tables as txt files
