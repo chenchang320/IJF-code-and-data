@@ -16,7 +16,7 @@ library(TSP)
 library(rvinecopulib)
 library(quantreg)
 library(fPortfolio)
-data1=read_excel('/Users/mac/Desktop/最初的沪深300中的158支个股股票数据.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-Englishi version/data/Simulation dataset.xlsx')
 select_data=data1[c(3:2676),-1]
 colnames(select_data)=c(1:158)
 select_data=select_data[,c(-23,-74,-133)]
@@ -32,6 +32,7 @@ colnames(select_data)=c(1:131)
 select_data=select_data[,-91]
 colnames(select_data)=c(1:130)
 
+
 log.return=function(x){
   diff(log(x))
 }
@@ -45,19 +46,18 @@ for (d in c(1:130)){
 }  
 f=log_return
 
-
-
 z=array(0,dim = c(2673,130))
 consigma=array(0,dim = c(2673,130))
 cancha=array(0,dim = c(2673,130))
 r=array(0,dim = c(2673,130))
-spec1 <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1,1)), mean.model = list(armaOrder = c(0,0)), distribution.model = "ged")
+spec1=ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),mean.model = list(armaOrder = c(0, 0), arfima = FALSE), distribution.model = "ged")
 
 for (i in 1:130) {
   z[,i]=as.numeric(residuals(ugarchfit(spec = spec1, data=f[,i],out.sample=0,solver="solnp",solver.control=list(trace=0)),standardize=TRUE))
   consigma[,i]=as.numeric(sigma(ugarchfit(spec = spec1, data=f[,i],out.sample=0,solver="solnp",solver.control=list(trace=0))))
   cancha[,i]=z[,i]*consigma[,i]
   r[,i]=cancha[,i]+coef(ugarchfit(spec = spec1, data=f[,i],out.sample=0,solver="solnp",solver.control=list(trace=0)))[[1]]
+  print(i)
 }
 
 
@@ -67,7 +67,7 @@ CVAR=matrix(0,974,18)
 r_1=array(0,dim = c(1700,130,974))
 for (j in 1:974) {
   r_1[,,j]=r[j:(j+1699),]
-
+  
   beta_hat=matrix(0,1700,129)
   for (a in 2:130) {
     for (b in 1:1700) {
@@ -180,3 +180,8 @@ for (j in 1:974) {
   CVAR[j,18]=ES_meanvar_ninety
   print(j)
 }
+
+
+
+write.csv(CVAR, file = '/Users/mac/Desktop/GitHub-Englishi version/data/simulated CVaR without vine.csv', row.names = FALSE)
+write.csv(VAR, file = '/Users/mac/Desktop/GitHub-Englishi version/data/simulated VaR without vine.csv', row.names = FALSE)
