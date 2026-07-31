@@ -4,7 +4,7 @@ library(dplyr)
 library(readxl)
 
 
-hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-Englishi version/data/HS300 dataset.xlsx')
+hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-English version/data/HS300 dataset.xlsx')
 
 
 hs_300_dates <- as.Date(hs_300[[1]])
@@ -14,7 +14,7 @@ hs_300_returns <- as.numeric(hs_300[[2]]) / 100
 Date <- hs_300_dates[1:974]
 
 
-ES = as.matrix(read.csv('/Users/mac/Desktop/GitHub-Englishi version/data/simulated CVaR with vine.csv'))
+ES = as.matrix(read.csv('/Users/mac/Desktop/GitHub-English version/data/simulated CVaR with vine.csv'))
 
 CVaR_99 <- ES[, c(1, 4, 5, 6)] * (-1)
 CVaR_95 <- ES[, c(8, 10, 11, 12)] * (-1)
@@ -76,7 +76,7 @@ library(dplyr)
 library(readxl)
 
 
-hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-Englishi version/data/HS300 dataset.xlsx')
+hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-English version/data/HS300 dataset.xlsx')
 hs_300_dates <- as.Date(hs_300[[1]])
 hs_300_returns <- as.numeric(hs_300[[2]]) / 100
 
@@ -84,7 +84,7 @@ hs_300_returns <- as.numeric(hs_300[[2]]) / 100
 Date <- hs_300_dates[1:974]
 
 
-VaR = as.matrix(read.csv('/Users/mac/Desktop/GitHub-Englishi version/data/simulated VaR with vine.csv'))
+VaR = as.matrix(read.csv('/Users/mac/Desktop/GitHub-English version/data/simulated VaR with vine.csv'))
 
 VaR_99 <- VaR[, c(1, 4, 5, 6)] * (-1)
 VaR_95 <- VaR[, c(8, 10, 11, 12)] * (-1)
@@ -157,13 +157,13 @@ library(dplyr)
 library(readxl)
 
 
-hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-Englishi version/data/HS300 dataset.xlsx')
+hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-English version/data/HS300 dataset.xlsx')
 hs_300_dates <- as.Date(hs_300[[1]])
 hs_300_returns <- as.numeric(hs_300[[2]]) / 100
 Date <- hs_300_dates[1:974]
 
 
-VAR = as.matrix(read.csv('/Users/mac/Desktop/GitHub-Englishi version/data/simulated VaR without vine.csv'))
+VAR = as.matrix(read.csv('/Users/mac/Desktop/GitHub-English version/data/simulated VaR without vine.csv'))
 
 with_copula_0.01 <- cbind(VaR[, 1], VAR[, 1]) * (-1)
 with_copula_0.05 <- cbind(VaR[, 8], VAR[, 8]) * (-1)
@@ -221,12 +221,12 @@ library(dplyr)
 library(readxl)
 
 
-hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-Englishi version/data/HS300 dataset.xlsx')
+hs_300 <- read_xlsx('/Users/mac/Desktop/GitHub-English version/data/HS300 dataset.xlsx')
 hs_300_dates <- as.Date(hs_300[[1]])
 Date <- hs_300_dates[1:974]
 
 
-CVAR = as.matrix(read.csv('/Users/mac/Desktop/GitHub-Englishi version/data/simulated CVaR without vine.csv'))
+CVAR = as.matrix(read.csv('/Users/mac/Desktop/GitHub-English version/data/simulated CVaR without vine.csv'))
 
 with_copula_0.01 <- cbind(ES[, 1], CVAR[, 1]) * (-1)
 with_copula_0.05 <- cbind(ES[, 8], CVAR[, 8]) * (-1)
