@@ -34,7 +34,7 @@ greedy_reduce_condition_number <- function(r_matrix, cond_threshold = 100, min_a
   current_cond <- compute_condition(r_matrix[, current_indices])
   
   if (verbose) {
-    cat(sprintf("初始资产数: %d, 初始条件数: %.2f\n", length(current_indices), current_cond))
+    cat(sprintf("Initial asset number: %d, Initial condition number: %.2f\n", length(current_indices), current_cond))
   }
   
   while (current_cond > cond_threshold && length(current_indices) > min_assets) {
@@ -56,7 +56,7 @@ greedy_reduce_condition_number <- function(r_matrix, cond_threshold = 100, min_a
     current_cond <- best_cond
     
     if (verbose) {
-      cat(sprintf("移除资产 %d，剩余 %d 个，当前条件数: %.2f\n", worst_idx, length(current_indices), current_cond))
+      cat(sprintf("Remove assets %d，remain %d ，Current condition number: %.2f\n", worst_idx, length(current_indices), current_cond))
     }
   }
   
@@ -73,7 +73,7 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
   n <- nrow(r)
   p <- ncol(r)
   
-  # ---------- SCAD 惩罚函数 ----------
+  
   scad_penalty <- function(beta, lambda, a = 3.7) {
     sapply(abs(beta), function(x) {
       if (x <= lambda) lambda * x
@@ -82,14 +82,14 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
     }) |> sum()
   }
   
-  # ---------- 目标函数 ----------
+  
   objective <- function(beta) {
-    # 若 beta 中有非法值，立即返回极大惩罚值
+    
     if (any(is.na(beta)) || any(is.nan(beta)) || any(is.infinite(beta))) return(1e10)
     
     port_returns <- as.vector(r %*% beta)
     
-    # 若乘积结果中也出现非法值，返回极大惩罚值
+    
     if (any(is.na(port_returns)) || any(is.nan(port_returns)) || any(is.infinite(port_returns))) return(1e10)
     
     VaR_est <- quantile(port_returns, tau, type = 8)
@@ -103,20 +103,20 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
   }
   
   
-  # ---------- 等式约束 ∑β = 1 ----------
+  
   equality_constraint <- function(beta) {
     sum(beta) - 1
   }
   
-  # ---------- 初始点 ----------
+  
   init_beta <- rep(1 / p, p)
   
-  # ---------- 调用 nloptr ----------
+  
   res <- nloptr(
     x0 = init_beta,
     eval_f = objective,
     eval_g_eq = equality_constraint,
-    lb = rep(0, p),  # 非负约束
+    lb = rep(0, p),  
     ub = rep(1, p),
     opts = list(
       algorithm = "NLOPT_LN_COBYLA",
@@ -135,19 +135,20 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
 }
 
 
-# num随机挑选r中的一次运行
-r = as.matrix(read.csv(paste0('/Users/mac/Desktop/期刊结果/r/r_', num, ".csv")))
-log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/期刊结果/第一次剔除后日收益/收益_", num, ".csv"))[,-1]
+# Take the last "num" as an example
+r = as.matrix(read.csv(paste0('/Users/mac/Desktop/GitHub-English version/data/r_forecast/r_', num, ".csv")))
+log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/GitHub-English version/data/Actual differential return/return_", num, ".csv"))[,-1]
 result <- greedy_reduce_condition_number(r, cond_threshold = 100, min_assets = 80)
 r_reduced <- result$r_reduced
 selected_indices <- result$selected_indices
 final_cond <- result$final_condition
 log_diff_data_final <- log_diff_data_final[selected_indices, drop = FALSE]
-# scad
-lambda_seq <- seq(0.3, 1.5, by = 0.1)  # lambda 从0.1到1.0，每步0.1
-all_weights <- list()  # 存储每个lambda下的结果
 
-# 更改tau值对应不同的分位点策略
+lambda_seq <- seq(0.3, 1.5, by = 0.1)  
+all_weights <- list() 
+
+'=================================='
+# change the tau value
 for (lambda_val in lambda_seq) {
   gamma_val <- 5
   min_nonzero_weights <- 25
@@ -165,7 +166,7 @@ for (lambda_val in lambda_seq) {
     gamma_val <- gamma_val - 1
   }
   
-  # 记录每个lambda下的结果，包括lambda、gamma、非零个数和权重
+
   all_weights[[paste0("lambda_", lambda_val)]] <- list(
     lambda = lambda_val,
     gamma = gamma_val,
@@ -175,7 +176,11 @@ for (lambda_val in lambda_seq) {
   print(lambda_val)
 }
 
-# 可选：转换为数据框用于查看或输出
+
+
+
+
+
 library(tibble)
 weight_df <- do.call(rbind, lapply(names(all_weights), function(name) {
   data.frame(lambda = all_weights[[name]]$lambda,
@@ -189,23 +194,22 @@ weight_matrix <- do.call(rbind, lapply(all_weights, function(x) {
   x$weights
 }))
 
-# 给行名加上 lambda 标识，方便识别
+
 rownames(weight_matrix) <- paste0("lambda_", sapply(all_weights, function(x) x$lambda))
 
-# 将绝对值小于 0.01 的权重置为 0
+
 weight_matrix[abs(weight_matrix) < 0.01] <- 0
 
-# 提取 lambda = 1.0 对应的行
-target_weights <- weight_matrix["lambda_1", ]  # 或者 weight_matrix["lambda_1.0", ]，视具体行名
 
-# 计算非零权重数量（已经处理过小于 0.01 为 0 了）
+target_weights <- weight_matrix["lambda_1", ] 
+
+
 nonzero_count <- sum(target_weights != 0)
 
-cat("在 lambda = 1.0 时，非零权重的资产数量为：", nonzero_count, "\n")
+cat("When lambda = 1.0 ，The number of assets with non-zero weights is：", nonzero_count, "\n")
 
 
-# 假设 weight_matrix 行是 lambda，不含 lambda 列
-# 行名形如 "lambda_0.1", "lambda_0.2" 等
+
 
 lambda_vals <- as.numeric(gsub("lambda_", "", rownames(weight_matrix)))
 weight_df <- data.frame(lambda = lambda_vals, weight_matrix)
@@ -219,7 +223,7 @@ long_data <- weight_df %>%
 library(ggplot2)
 
 
-
+# label and title need change
 ggplot(long_data, aes(x = lambda, y = value, color = variable)) +
   geom_line() +
   geom_vline(xintercept = 1.0, lty = 2, lwd = 1, col = 'black') +
