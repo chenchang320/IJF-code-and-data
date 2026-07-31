@@ -11,7 +11,7 @@ library(timeSeries)
 library(fBasics)
 library(mistr)
 library(quantmod)
-data1=read_excel('/Users/mac/Desktop/git-hub/数据/10支上证行业指数.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-Englishi version/data/Ten industry dataset.xlsx')
 select_data=data1[c(1:2674),c(-1)]
 colnames(select_data)=c(1:10)
 
@@ -54,29 +54,3 @@ for (i in  1:10){
   before_arch[[i]]=archTest(residuals(auto.arima(f[,i])),lag=5)
 }
 
-
-garch=list()
-sigma=array(0,dim = c(2673,10))
-z=array(0,dim = c(2673,10))
-fit=list()
-CDF=list()
-inverse_CDF=list()
-U=array(0,dim = c(2673,10))
-spec1=ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),mean.model = list(armaOrder = c(1, 1), arfima = FALSE), distribution.model = "ged")
-for (i in 1:10) {
-  garch[[i]]=ugarchfit(spec = spec1, data=f[,i],out.sample=0,solver="solnp",solver.control=list(trace=0))
-  sigma[,i]<-as.numeric(sigma(garch[[i]]))#提取条件标准差#
-  z[,i]<-residuals(garch[[i]],standardize=TRUE)#提取标准化残差#
-  fit[[i]]=GNG_fit(z[,i], start = c(break1 = -2, break2 =1.5, mean = 0, sd =1,shape1 = 0.1, shape2= 0.1))
-  CDF[[i]]=function(x){mistr::p(distribution(fit[[i]]),x)}
-  inverse_CDF[[i]]<-function(x){mistr::q(distribution(fit[[i]]),x)}
-  U[,i]=CDF[[i]](z[,i])
-  
-}
-
-after_LB_test=list()
-after_arch=list()
-for (j in 1:10) {
-  after_LB_test[[j]]=Box.test(z[,j],5,type='Ljung-Box')
-  after_arch[[j]]=archTest(z[,j],lag=20)
-}
