@@ -11,7 +11,7 @@ library(timeSeries)
 library(fBasics)
 library(mistr)
 library(quantmod)
-data1=read_excel('/Users/mac/Desktop/GitHub-Englishi version/data/Ten industry dataset.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-English version/data/Ten industry dataset.xlsx')
 select_data=data1[c(1:2674),c(-1)]
 colnames(select_data)=c(1:10)
 
