@@ -20,6 +20,8 @@ library(MASS)
 library(evir)
 library(quadprog)  
 library(fPortfolio)
+library(R.utils)
+library(callr)
 
 
 greedy_reduce_condition_number <- function(r_matrix, cond_threshold = 100, min_assets = 5, verbose = TRUE) {
@@ -35,7 +37,7 @@ greedy_reduce_condition_number <- function(r_matrix, cond_threshold = 100, min_a
   current_cond <- compute_condition(r_matrix[, current_indices])
   
   if (verbose) {
-    cat(sprintf("初始资产数: %d, 初始条件数: %.2f\n", length(current_indices), current_cond))
+    cat(sprintf("Initial asset number: %d, Initial condition number: %.2f\n", length(current_indices), current_cond))
   }
   
   while (current_cond > cond_threshold && length(current_indices) > min_assets) {
@@ -57,7 +59,7 @@ greedy_reduce_condition_number <- function(r_matrix, cond_threshold = 100, min_a
     current_cond <- best_cond
     
     if (verbose) {
-      cat(sprintf("移除资产 %d，剩余 %d 个，当前条件数: %.2f\n", worst_idx, length(current_indices), current_cond))
+      cat(sprintf("Remove assets %d，remain %d ，Current condition number: %.2f\n", worst_idx, length(current_indices), current_cond))
     }
   }
   
@@ -75,7 +77,7 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
   n <- nrow(r)
   p <- ncol(r)
   
-  # ---------- SCAD 惩罚函数 ----------
+
   scad_penalty <- function(beta, lambda, a = 3.7) {
     sapply(abs(beta), function(x) {
       if (x <= lambda) lambda * x
@@ -84,14 +86,14 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
     }) |> sum()
   }
   
-  # ---------- 目标函数 ----------
+
   objective <- function(beta) {
-    # 若 beta 中有非法值，立即返回极大惩罚值
+
     if (any(is.na(beta)) || any(is.nan(beta)) || any(is.infinite(beta))) return(1e10)
     
     port_returns <- as.vector(r %*% beta)
     
-    # 若乘积结果中也出现非法值，返回极大惩罚值
+
     if (any(is.na(port_returns)) || any(is.nan(port_returns)) || any(is.infinite(port_returns))) return(1e10)
     
     VaR_est <- quantile(port_returns, tau, type = 8)
@@ -105,20 +107,20 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
   }
   
   
-  # ---------- 等式约束 ∑β = 1 ----------
+
   equality_constraint <- function(beta) {
     sum(beta) - 1
   }
   
-  # ---------- 初始点 ----------
+
   init_beta <- rep(1 / p, p)
   
-  # ---------- 调用 nloptr ----------
+
   res <- nloptr(
     x0 = init_beta,
     eval_f = objective,
     eval_g_eq = equality_constraint,
-    lb = rep(0, p),  # 非负约束
+    lb = rep(0, p),  
     ub = rep(1, p),
     opts = list(
       algorithm = "NLOPT_LN_COBYLA",
@@ -137,52 +139,219 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
 }
 
 
+run_scad_repeat_timeout <- function(
+    r_reduced,
+    tau,
+    timeout_seconds = 90,
+    gamma_start = 5,
+    min_nonzero_weights = 25,
+    threshold = 0.001
+) {
+  
+  result <- tryCatch(
+    
+    callr::r(
+      func = function(
+    r_reduced,
+    tau,
+    gamma_start,
+    min_nonzero_weights,
+    threshold,
+    optimize_fun
+      ) {
+        
+        gamma_val <- gamma_start
+        weight <- NULL
+        nonzero_count <- 0
+        
+        repeat {
+          
+          g <- optimize_fun(
+            r = r_reduced,
+            tau = tau,
+            gamma = gamma_val,
+            lambda = 1
+          )
+          
+          weight <- g$weights
+          
+          if (
+            is.null(weight) ||
+            anyNA(weight) ||
+            any(!is.finite(weight))
+          ) {
+            stop("Optimize without returning valid weights")
+          }
+          
+          nonzero_count <- sum(
+            abs(weight) > threshold
+          )
+          
+          if (
+            nonzero_count >= min_nonzero_weights ||
+            gamma_val <= 1
+          ) {
+            break
+          }
+          
+          gamma_val <- gamma_val - 1
+        }
+        
+        list(
+          success = TRUE,
+          weights = weight,
+          gamma = gamma_val,
+          nonzero_count = nonzero_count
+        )
+      },
+    
+    args = list(
+      r_reduced = r_reduced,
+      tau = tau,
+      gamma_start = gamma_start,
+      min_nonzero_weights = min_nonzero_weights,
+      threshold = threshold,
+      optimize_fun = optimize_portfolio_nonnegative
+    ),
+    
+
+    timeout = timeout_seconds,
+    
+    libpath = .libPaths()
+    ),
+    
+    error = function(e) {
+      
+      list(
+        success = FALSE,
+        weights = NULL,
+        gamma = NA_real_,
+        nonzero_count = NA_integer_,
+        message = conditionMessage(e)
+      )
+    }
+  )
+  
+  result
+}
 
 
-VAR = matrix(0,974,4)
-CVAR = matrix(0,974,4)
-Mean=matrix(0,974,4)
+
+Mean=matrix(0,974,6)
 for (num in 1:974) {
-  r = as.matrix(read.csv(paste0('/Users/mac/Desktop/期刊结果/r/r_', num, ".csv")))
-  log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/期刊结果/第一次剔除后日收益/收益_", num, ".csv"))[,-1]
+  r = as.matrix(read.csv(paste0('/Users/mac/Desktop/GitHub-English version/data/r_forecast/r_', num, ".csv")))
+  log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/GitHub-English version/data/Actual differential return/return_", num, ".csv"))[,-1]
   result <- greedy_reduce_condition_number(r, cond_threshold = 100, min_assets = 80)
   r_reduced <- result$r_reduced
   selected_indices <- result$selected_indices
   final_cond <- result$final_condition
   log_diff_data_final <- log_diff_data_final[selected_indices, drop = FALSE]
-  # scad
-  gamma_val <- 5
-  min_nonzero_weights <- 25
-  threshold <- 0.001
-  weight <- NULL  # 初始化
   
-  repeat {
-    # 优化组合
-    g_2 <- optimize_portfolio_nonnegative(r_reduced, tau = 0.05, gamma = gamma_val, lambda = 1)
-    weight <- g_2$weights
+
+  
+  scad_failed <- FALSE
+  
+  
+  # ---------------- tau = 0.01 ----------------
+  result_scad_1 <- run_scad_repeat_timeout(
+    r_reduced = r_reduced,
+    tau = 0.01,
+    timeout_seconds = 300,
+    gamma_start = 5,
+    min_nonzero_weights = 25,
+    threshold = 0.001
+  )
+  
+  if (!isTRUE(result_scad_1$success)) {
     
-    # 判断非零权重数量
-    nonzero_count <- sum(abs(weight) > threshold)
+    cat(
+      sprintf(
+        "num = %d，tau = 0.01 excess or error ，Skip the current num：%s\n",
+        num,
+        result_scad_1$message
+      )
+    )
     
-    if (nonzero_count >= min_nonzero_weights || gamma_val <= 1) {
-      break
-    }
+    scad_failed <- TRUE
     
-    # 减小 gamma 并重试
-    gamma_val <- gamma_val - 1
+  } else {
+    
+    weight_1 <- result_scad_1$weights
   }
-  sim_returns_scad=r_reduced%*%weight
-  VaR_95_scad <- quantile(sim_returns_scad, probs = 0.05)
-  CVaR_95_scad <- mean(sim_returns_scad[sim_returns_scad <= VaR_95_scad])
+  
+  
+  # ---------------- tau = 0.05 ----------------
+  if (!scad_failed) {
+    
+    result_scad_2 <- run_scad_repeat_timeout(
+      r_reduced = r_reduced,
+      tau = 0.05,
+      timeout_seconds = 300,
+      gamma_start = 5,
+      min_nonzero_weights = 25,
+      threshold = 0.001
+    )
+    
+    if (!isTRUE(result_scad_2$success)) {
+      
+      cat(
+        sprintf(
+          "num = %d，tau = 0.05 excess or error ，Skip the current num：%s\n",
+          num,
+          result_scad_2$message
+        )
+      )
+      
+      scad_failed <- TRUE
+      
+    } else {
+      
+      weight_2 <- result_scad_2$weights
+    }
+  }
+  
+  
+  # ---------------- tau = 0.10 ----------------
+  if (!scad_failed) {
+    
+    result_scad_3 <- run_scad_repeat_timeout(
+      r_reduced = r_reduced,
+      tau = 0.10,
+      timeout_seconds = 300,
+      gamma_start = 5,
+      min_nonzero_weights = 25,
+      threshold = 0.001
+    )
+    
+    if (!isTRUE(result_scad_3$success)) {
+      
+      cat(
+        sprintf(
+          "num = %d，tau = 0.10 excess or error ，Skip the current num：%s\n",
+          num,
+          result_scad_3$message
+        )
+      )
+      
+      scad_failed <- TRUE
+      
+    } else {
+      
+      weight_3 <- result_scad_3$weights
+    }
+  }
+  
+  
+
+  if (scad_failed) {
+    next
+  }
   
   
   #min-var
   mo=minvariancePortfolio(as.timeSeries(r_reduced), spec = portfolioSpec(), constraints = "LongOnly")
   qo=getWeights(mo)
   weights_minvar=matrix(qo,ncol(r_reduced),1)
-  sim_returns_minvar <- r_reduced %*% weights_minvar
-  VaR_95_minvar <- quantile(sim_returns_minvar, probs = 0.05)
-  CVaR_95_minvar <- mean(sim_returns_minvar[sim_returns_minvar <= VaR_95_minvar])
   
   #mean-var
   Spec = portfolioSpec()
@@ -190,33 +359,20 @@ for (num in 1:974) {
   mo_1=efficientPortfolio(as.timeSeries(r_reduced), Spec , constraints = "LongOnly")
   qo_1=getWeights(mo_1)
   weights_meanvar=matrix(qo_1,ncol(r_reduced),1)
-  sim_returns_meanvar <- r_reduced %*% weights_meanvar
-  VaR_95_meanvar <- quantile(sim_returns_meanvar, probs = 0.05)
-  CVaR_95_meanvar <- mean(sim_returns_meanvar[sim_returns_meanvar <= VaR_95_meanvar])
   
   #ewp
   n_assets <- ncol(r_reduced)
   weights_ewp <- rep(1 / n_assets, n_assets)  
-  simulated_returns_ewp <- r_reduced %*% weights_ewp  # 得到10000个组合收益
-  VaR_95_ewp <- quantile(simulated_returns_ewp, probs = 0.05)
-  CVaR_95_ewp <- mean(simulated_returns_ewp[simulated_returns_ewp <= VaR_95_ewp])
   
-  VAR[num,1]=VaR_95_scad
-  VAR[num,2]=VaR_95_minvar
-  VAR[num,3]=VaR_95_ewp
-  VAR[num,4]=VaR_95_meanvar
-  CVAR[num,1] =CVaR_95_scad
-  CVAR[num,2]=CVaR_95_minvar
-  CVAR[num,3]=CVaR_95_ewp
-  CVAR[num,4]=CVaR_95_meanvar
-  Mean[num,1]=log_diff_data_final%*%weight
-  Mean[num,2]=log_diff_data_final%*%weights_minvar
-  Mean[num,3]=log_diff_data_final%*%weights_ewp
-  Mean[num,4]=log_diff_data_final%*%weights_meanvar
+  Mean[num,1]=(exp(log_diff_data_final) - 1)%*%weight_1
+  Mean[num,2]=(exp(log_diff_data_final) - 1)%*%weight_2
+  Mean[num,3]=(exp(log_diff_data_final) - 1)%*%weight_3
+  Mean[num,4]=(exp(log_diff_data_final) - 1)%*%weights_minvar
+  Mean[num,5]=(exp(log_diff_data_final) - 1)%*%weights_ewp
+  Mean[num,6]=(exp(log_diff_data_final) - 1)%*%weights_meanvar
   print(num)
-  write.csv(VAR, file = '/Users/mac/Desktop/期刊结果/表格tau=0.05/VAR.csv', row.names = FALSE)
-  write.csv(CVAR, file = '/Users/mac/Desktop/期刊结果/表格tau=0.05/CVAR.csv', row.names = FALSE)
-  write.csv(Mean, file = '/Users/mac/Desktop/期刊结果/表格tau=0.05/Mean.csv', row.names = FALSE)
+  
+  write.csv(Mean, file = '/Users/mac/Desktop/GitHub-English version/data/Daily return.csv', row.names = FALSE)
 }
 
 
@@ -224,99 +380,22 @@ for (num in 1:974) {
 
 
 
-#tau=0.01和tau=0.1放在一起计算
-VAR = as.matrix(read.csv('/Users/mac/Desktop/期刊结果/表格tau=0.01/VAR.csv'))
-CVAR = as.matrix(read.csv('/Users/mac/Desktop/期刊结果/表格tau=0.01/CVAR.csv'))
-Mean = as.matrix(read.csv('/Users/mac/Desktop/期刊结果/表格tau=0.01/Mean.csv'))
-for (num in 1:974) {
-  r = as.matrix(read.csv(paste0('/Users/mac/Desktop/期刊结果/r/r_', num, ".csv")))
-  log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/期刊结果/第一次剔除后日收益/收益_", num, ".csv"))[,-1]
-  result <- greedy_reduce_condition_number(r, cond_threshold = 100, min_assets = 80)
-  r_reduced <- result$r_reduced
-  selected_indices <- result$selected_indices
-  final_cond <- result$final_condition
-  log_diff_data_final <- log_diff_data_final[selected_indices, drop = FALSE]
-  # scad
-  gamma_val <- 5
-  min_nonzero_weights <- 25
-  threshold <- 0.001
-  weight <- NULL  # 初始化
-  
-  repeat {
-    # 优化组合
-    g_2 <- optimize_portfolio_nonnegative(r_reduced, tau = 0.01, gamma = gamma_val, lambda = 1)
-    weight <- g_2$weights
-    
-    # 判断非零权重数量
-    nonzero_count <- sum(abs(weight) > threshold)
-    
-    if (nonzero_count >= min_nonzero_weights || gamma_val <= 1) {
-      break
-    }
-    
-    # 减小 gamma 并重试
-    gamma_val <- gamma_val - 1
-  }
-  sim_returns_scad=r_reduced%*%weight
-  VaR_95_scad <- quantile(sim_returns_scad, probs = 0.05)
-  CVaR_95_scad <- mean(sim_returns_scad[sim_returns_scad <= VaR_95_scad])
-  
-  gamma_val_1 <- 5
-  min_nonzero_weights_1 <- 25
-  threshold_1 <- 0.001
-  weight_1 <- NULL  # 初始化
-  repeat {
-    # 优化组合
-    g_3 <- optimize_portfolio_nonnegative(r_reduced, tau = 0.1, gamma = gamma_val_1, lambda = 1)
-    weight_1 <- g_3$weights
-    
-    # 判断非零权重数量
-    nonzero_count_1 <- sum(abs(weight_1) > threshold_1)
-    
-    if (nonzero_count_1 >= min_nonzero_weights_1 || gamma_val_1 <= 1) {
-      break
-    }
-    
-    # 减小 gamma 并重试
-    gamma_val_1 <- gamma_val_1 - 1
-  }
-  sim_returns_scad_1 = r_reduced%*%weight_1
-  VaR_95_scad_1 <- quantile(sim_returns_scad_1, probs = 0.05)
-  CVaR_95_scad_1 <- mean(sim_returns_scad_1[sim_returns_scad_1 <= VaR_95_scad_1])
-  
-  VAR[num,1]=VaR_95_scad
-  VAR[num,2]=VaR_95_scad_1
-  CVAR[num,1] =CVaR_95_scad
-  CVAR[num,2]=CVaR_95_scad_1 
-  Mean[num,1]=log_diff_data_final%*%weight
-  Mean[num,2]=log_diff_data_final%*%weight_1
-  print(num)
-  write.csv(VAR, file = '/Users/mac/Desktop/期刊结果/表格tau=0.01/VAR.csv', row.names = FALSE)
-  write.csv(CVAR, file = '/Users/mac/Desktop/期刊结果/表格tau=0.01/CVAR.csv', row.names = FALSE)
-  write.csv(Mean, file = '/Users/mac/Desktop/期刊结果/表格tau=0.01/Mean.csv', row.names = FALSE)
-}
-
-
-
-
-
-
-
-#最后一次循环画的权重稀疏图
-log_diff_name = read.csv(paste0("/Users/mac/Desktop/期刊结果/第一次剔除后日收益/收益_", num, ".csv"))[,1]
+'============================================'
+# Take the last "num" as an example
+log_diff_name = read.csv(paste0("/Users/mac/Desktop/GitHub-English version/data/Actual differential return/return_", num, ".csv"))[,1]
 log_diff_name <- log_diff_name[selected_indices, drop = FALSE]
-# 去掉前缀 X
+
 group <- gsub("^X", "", log_diff_name)
 
-# 假设 weight 是你的权重向量
-values <- weight
-values[abs(values) < 0.01] <- 0  # 小于0.001的权重归零
+# ==================================
+values <- weight_1
+values[abs(values) < 0.01] <- 0  
 
 
-# 构建数据框
+
 data_ggp <- data.frame(group = as.factor(group), values = values)
 
-# 绘制柱状图
+
 library(ggplot2)
 ggplot(data_ggp, aes(x = group, y = values)) +
   geom_bar(stat = "identity") +
@@ -330,15 +409,37 @@ ggplot(data_ggp, aes(x = group, y = values)) +
 
 # ==================================
 
-# 假设 weight 是你的权重向量
-values <- weight_1
-values[abs(values) < 0.01] <- 0  # 小于0.001的权重归零
+
+values <- weight_2
+values[abs(values) < 0.01] <- 0  
 
 
-# 构建数据框
+
 data_ggp <- data.frame(group = as.factor(group), values = values)
 
-# 绘制柱状图
+
+library(ggplot2)
+ggplot(data_ggp, aes(x = group, y = values)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Optimal portfolio weights (tau = 0.05)", 
+       x = "Stock Code", 
+       y = "Weight") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        axis.line = element_line(color = "black"),
+        plot.title = element_text(hjust = 0.5),
+        plot.title.position = "plot")
+
+# ==================================
+
+
+values <- weight_3
+values[abs(values) < 0.01] <- 0  
+
+
+
+data_ggp <- data.frame(group = as.factor(group), values = values)
+
+
 library(ggplot2)
 ggplot(data_ggp, aes(x = group, y = values)) +
   geom_bar(stat = "identity") +
