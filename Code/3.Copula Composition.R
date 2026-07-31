@@ -15,7 +15,7 @@ library(network)
 library(TSP)
 library(rvinecopulib)
 
-data1=read_excel('/Users/mac/Desktop/git-hub/数据/10支上证行业指数.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-Englishi version/data/Ten industry dataset.xlsx')
 select_data=data1[c(1:2674),c(-1)]
 colnames(select_data)=c(1:10)
 
@@ -49,8 +49,22 @@ for (i in 1:10) {
 RVINE<-RVineStructureSelect(U,c(1:6),rotations=T,se=T,type=0)
 #str(RVINE)
 #summary(RVINE)
-contour(RVINE)
+#contour(RVINE)
 RVINEM <- RVineMatrix(Matrix = RVINE$Matrix, family = RVINE$family,par = RVINE$par, par2 = RVINE$par2,names = RVINE$names)
-plot(RVINEM)
+#plot(RVINEM)
 
-RVineTreePlot(RVINE,edge.labels='family')
+#RVineTreePlot(RVINE,edge.labels='family')
+
+n_tree <- ncol(RVINEM$Matrix) - 1
+
+par(ask = FALSE)
+
+for (k in 1:n_tree) {
+  plot(
+    RVINEM,
+    tree = k,
+    edge.labels = "family"
+  )
+}
+
+
