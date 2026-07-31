@@ -16,7 +16,7 @@ library(TSP)
 library(rvinecopulib)
 library(quantreg)
 library(fPortfolio)
-data1=read_excel('/Users/mac/Desktop/GitHub-Englishi version/data/Simulation dataset.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-English version/data/Simulation dataset.xlsx')
 select_data=data1[c(3:2676),-1]
 colnames(select_data)=c(1:158)
 select_data=select_data[,c(-23,-74,-133)]
@@ -183,5 +183,5 @@ for (j in 1:974) {
 
 
 
-write.csv(CVAR, file = '/Users/mac/Desktop/GitHub-Englishi version/data/simulated CVaR without vine.csv', row.names = FALSE)
-write.csv(VAR, file = '/Users/mac/Desktop/GitHub-Englishi version/data/simulated VaR without vine.csv', row.names = FALSE)
+write.csv(CVAR, file = '/Users/mac/Desktop/GitHub-English version/data/simulated CVaR without vine.csv', row.names = FALSE)
+write.csv(VAR, file = '/Users/mac/Desktop/GitHub-English version/data/simulated VaR without vine.csv', row.names = FALSE)
