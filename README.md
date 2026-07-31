@@ -22,7 +22,7 @@ For consistency, all file paths in the code are specified as absolute paths refe
 
 Additionally, as the routine generates intermediate datasets during execution, we strongly recommend running the scripts sequentially in the order they are provided to prevent potential runtime errors.===
 
-These analyses were run on R 4.3.1, and we explicitly use the following packages in the analysis files: `triptych` (0.1.2), `ggplot2` (3.4.3), `patchwork` (1.1.3), `dplyr` (1.1.3), `tidyr` (1.3.0), `purrr` (1.0.2), `grid` (base R), `lubridate` (1.9.2).
+These analyses were run on R 4.4.1, and we explicitly use the following packages in the analysis files: `readxl` (1.4.3), `ggplot2` (3.5.1), `rugarch` (1.5-3), `dplyr` (1.1.4), `tidyr` (1.3.1), `fGarch` (4033.92), `timeDate` (4041.110), `timeSeries` (4041.111), `fBasics` (4041.97), `mister` (0.0.6), `quantmod` (0.4.26), `copula` (1.1-4), `VineCopula` (2.5.1), `kdecopula` (0.9.2), `shiny` (1.9.1), `network` (1.18.2), `TSP` (1.2-4), `rvinecopulib` (0.7.1.1.1), `quantreg` (5.99), `ncvreg` (3.15.0), `MASS` (7.3-60.2), `evir` (1.7-4), `quadprog` (1.5-8), `fPortfolio` (4023.84), `R.utils` (2.13.0), `callr` (3.8.0), `reshape2` (1.4.4), `scales` (1.3.0), `agricolae` (1.3-7), `forecast` (8.24.0), `tseries` (0.10-58), `MTS` (1.2.1), `DistributionUtils` (0.6-1).
 
 A comprehensive list of dependencies can be found in the `renv.lock` file. For a convenient setup in a (local) R session, we recommend using the `renv` package. The following steps are required once:
 ```
