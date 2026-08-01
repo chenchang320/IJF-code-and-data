@@ -6,14 +6,24 @@ Lv jian, Chenxu Wang and Wenyong Yuan
 
 The replication code provided herein is designed to generate all 56 figures and 9 tables presented in the paper “High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constraints”. The empirical strategy remains consistent throughout, with the sole variation being the selection of truncation points. To accommodate this, all graphical outputs are produced within a unified script, where the key distinctions are governed by adjustable parameters—specifically, the input objects and the length of the estimation window—within the respective functions. Regarding the tabular results, while they can be directly outputted from the code, we opt for manual transcription to ensure the utmost accuracy and to allow for flexible post-hoc formatting adjustments.===
 
+- `Code`: R script for generating visualisation
+- `Figures/`: folder of generated plots as eps and jpg files
+- `Intermediate data/`: folder of generated data files during operation
+- `Raw data/`: folder of raw data files
+- `Tables/`: folder of generated tables as xlsx files
+
 The following list specifies the correspondence between each figure/table and the code file from which it is generated：===
 
-- `plots/`: folder of generated plots as PDF files
-- `tables/`: folder of generated tables as txt files
-- `data-raw/`: folder of raw data files and the functions for processing them
-- `data/`: folder of processed data files
-- `Figure_[xx]_*.R`: R scripts to create the respective figures
-- `Table_[xx]_*.R`: R scripts to create the respective tables
+- `Code 1`: contain "Table7"
+- `Code 2`: contain "Table1、Table8、Table9"
+- `Code 3`: contain 'Figure1、Figure10、Figure11'
+- `Code 6`: contain 'Figure3、Figure4、Figure14、Figure15、Figure16、Figure17'
+- `Code 8 and Code 9`: contain 'Figure2、Figure12、Figure13'
+- `Code 10`: contain 'Figure5、Figure18、Figure19' and "Table2、Table3"
+- `Code 11`: contain 'Figure6、Figure20、Figure21' and "Table4、Table5"
+- `Code 12`: contain 'Figure7、Figure9、Figure22、Figure23'
+- `Code 13`: contain 'Figure8、Figure24、Figure25、Figure26、Figure27、Figure28'
+- `Code 13`: contain "Table6"
 
 
 ## Instructions & computational requirements.
