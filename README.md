@@ -4,7 +4,7 @@ Lv jian, Chenxu Wang and Wenyong Yuan
 
 ## Overview & contents
 
-The replication code provided herein is designed to generate all 56 figures and 9 tables presented in the paper “High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constraints”. The empirical strategy remains consistent throughout, with the sole variation being the selection of truncation points. To accommodate this, all graphical outputs are produced within a unified script, where the key distinctions are governed by adjustable parameters—specifically, the input objects and the length of the estimation window—within the respective functions. Regarding the tabular results, while they can be directly outputted from the code, we opt for manual transcription to ensure the utmost accuracy and to allow for flexible post-hoc formatting adjustments.===
+The replication code provided herein is designed to generate all 56 figures and 9 tables presented in the paper “High-dimensional portfolio optimization using GARCH-EVT, R-vine Copula, and SCAD penalty with weight constraints”. The empirical strategy remains consistent throughout, with the sole variation being the selection of truncation points. To accommodate this, all graphical outputs are produced within a unified script, where the key distinctions are governed by adjustable parameters—specifically, the input objects and the length of the estimation window—within the respective functions. Regarding the tabular results, while they can be directly outputted from the code, we opt for manual transcription to ensure the utmost accuracy and to allow for flexible post-hoc formatting adjustments.
 
 - `Code`: R script for generating visualisation
 - `Figures/`: folder of generated plots as eps and jpg files
@@ -12,7 +12,7 @@ The replication code provided herein is designed to generate all 56 figures and 
 - `Raw data/`: folder of raw data files
 - `Tables/`: folder of generated tables as xlsx files
 
-The following list specifies the correspondence between each figure/table and the code file from which it is generated：===
+The following list specifies the correspondence between each figure/table and the code file from which it is generated：
 
 - `Code 1`: contain "Table7"
 - `Code 2`: contain "Table1、Table8、Table9"
@@ -23,14 +23,16 @@ The following list specifies the correspondence between each figure/table and th
 - `Code 11`: contain 'Figure6、Figure20、Figure21' and "Table4、Table5"
 - `Code 12`: contain 'Figure7、Figure9、Figure22、Figure23'
 - `Code 13`: contain 'Figure8、Figure24、Figure25、Figure26、Figure27、Figure28'
-- `Code 13`: contain "Table6"
+- `Code 14`: contain "Table6"
+
+It should be noted that when plotting Cumulative returns and Sharpe ratios in charts and tables, you only need to adjust the window length; there is no need to change the quantile size or the input objects. However, when plotting RAROC in charts and tables, you must not only adjust the window length but also change the quantile size and the input objects.
 
 
 ## Instructions & computational requirements.
 
-For consistency, all file paths in the code are specified as absolute paths referencing our local working environment. Users are therefore advised to download the data files and reconfigure these paths to match their own directory structures.===
+For consistency, all file paths in the code are specified as absolute paths referencing our local working environment. Users are therefore advised to download the data files and reconfigure these paths to match their own directory structures.
 
-Additionally, as the routine generates intermediate datasets during execution, we strongly recommend running the scripts sequentially in the order they are provided to prevent potential runtime errors.===
+Additionally, as the routine generates intermediate datasets during execution, we strongly recommend running the scripts sequentially in the order they are provided to prevent potential runtime errors.
 
 These analyses were run on R 4.4.1, and we explicitly use the following packages in the analysis files: `readxl` (1.4.3), `ggplot2` (3.5.1), `rugarch` (1.5-3), `dplyr` (1.1.4), `tidyr` (1.3.1), `fGarch` (4033.92), `timeDate` (4041.110), `timeSeries` (4041.111), `fBasics` (4041.97), `mister` (0.0.6), `quantmod` (0.4.26), `copula` (1.1-4), `VineCopula` (2.5.1), `kdecopula` (0.9.2), `shiny` (1.9.1), `network` (1.18.2), `TSP` (1.2-4), `rvinecopulib` (0.7.1.1.1), `quantreg` (5.99), `ncvreg` (3.15.0), `MASS` (7.3-60.2), `evir` (1.7-4), `quadprog` (1.5-8), `fPortfolio` (4023.84), `R.utils` (2.13.0), `callr` (3.8.0), `reshape2` (1.4.4), `scales` (1.3.0), `agricolae` (1.3-7), `forecast` (8.24.0), `tseries` (0.10-58), `MTS` (1.2.1), `DistributionUtils` (0.6-1).
 
@@ -44,6 +46,15 @@ renv::status() # check environment
 
 ## Data availability and provenance
 
-All data necessary for replicating the empirical results are provided in tabular format within this replication package, with no access restrictions or usage limitations. These data are ready for direct use in the accompanying code.===
+All data necessary for replicating the empirical results are provided in tabular format within this replication package, with no access restrictions or usage limitations. These data are ready for direct use in the accompanying code.
+
+Intermediate data refers to data generated by code, as detailed below:
+
+- `Code 4`: generate "simulated CVaR with vine.csv" and "simulated VaR with vine.csv"
+- `Code 5`: generate "simulated CVaR without vine.csv" and "simulated VaR without vine.csv"
+- `Code 7`: generate "Actual differential return" and "r_forecast"
+- `Code 8`: generate "Daily return.csv"
+
+Only six files have been uploaded to the r_forecast repository; this is due to GitHub’s limit of 25M in total file size for uploads.Please contact the author if required.
 
 
