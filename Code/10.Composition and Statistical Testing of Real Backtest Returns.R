@@ -191,7 +191,7 @@ calc_rolling_risk <- function(returns, window_size = 30, roll_step = 1, alpha = 
 
 window_size <- 90   # or window_size <-60
 roll_step <- 1     
-alpha <- 0.90   # this value makes no difference here   
+alpha <- 0.90   # this value makes no difference here，No adjustment is required   
 
 risk_results <- lapply(1:ncol(Mean), function(j) {
   calc_rolling_risk(Mean[, j], window_size = window_size, roll_step = roll_step, alpha = alpha)
