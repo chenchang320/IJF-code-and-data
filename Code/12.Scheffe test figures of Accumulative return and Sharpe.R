@@ -4,7 +4,7 @@ library(scales)
 library(dplyr)
 library(readxl)
 
-hs_300 = read_xlsx('/Users/mac/Desktop/GitHub-English version/data/HS300 dataset.xlsx')
+hs_300 = read_xlsx('/Users/mac/Desktop/GitHub-English version/Raw data/HS300 dataset.xlsx')
 
 hs_300_returns <- as.numeric(hs_300[[2]])/100
 
@@ -20,7 +20,7 @@ for (t in 2:length(hs_300_returns)) {
 
 
 
-Mean = as.matrix(read.csv('/Users/mac/Desktop/GitHub-English version/data/Daily return.csv'))
+Mean = as.matrix(read.csv('/Users/mac/Desktop/GitHub-English version/Intermediate data/Daily return.csv'))
 
 
 col_names <- c("SCAD(tau=0.01)", 
