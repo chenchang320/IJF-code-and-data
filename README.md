@@ -41,7 +41,22 @@ These analyses were run on R 4.4.1, and we explicitly use the following packages
 
 Please install the various software packages strictly in accordance with the versions specified above; otherwise, errors may occur in Code 4. Furthermore, as file size restrictions prevent us from uploading the relevant environment, should any errors arise, please contact the author to request the relevant environment data.
 
-Computer type:Processor‘1.4 GHz Quad-core Intel Core i5’, The time calculations are set out in ‘Table 6’
+Computer type:
+Processor‘1.4 GHz Quad-core Intel Core i5’;
+
+•	macOS 15.7.7;
+
+•	Intel x86_64 architecture;
+
+•	Sys.info(): Kernel: Darwin 24.6.0;
+
+•	R platform: x86_64-apple-darwin20;
+
+•	BLAS: Apple Accelerate / vecLib;
+
+•	LAPACK: R bundled libRlapack.dylib (LAPACK version 3.12.0);
+
+The time calculations are set out in ‘Table 6’
 
 ## Data availability and provenance
 
