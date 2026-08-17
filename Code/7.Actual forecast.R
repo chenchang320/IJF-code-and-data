@@ -21,7 +21,7 @@ library(evir)
 library(quadprog)  
 library(fPortfolio)
 
-data = read.csv('/Users/mac/Desktop/GitHub-English version/data/Actual application dataset.csv')
+data = read.csv('/Users/mac/Desktop/GitHub-English version/Raw data/Actual application dataset.csv')
 data = data[c(-1,-2), -1]
 
 rownames(data) <- data[[1]]  
@@ -258,8 +258,8 @@ for (i in 1:974) {
     r[,m] = mu_forecast_1[m] + coef(garch_1[[m]])[2] * tail(f_1[, m], 1) +  coef(garch_1[[m]])[3] * tail(sigma_1[, m], 1) + sigma_forecast_1[m] * sim_real[,m]
   }
   
-  write.csv(r, file = paste0("/Users/mac/Desktop/GitHub-English version/data/r_forecast/r_", i, ".csv"), row.names = FALSE)
-  write.csv(as.matrix(log_diff_data_1[1699+i,]), file = paste0("/Users/mac/Desktop/GitHub-English version/data/Actual differential return/return_", i, ".csv"))
+  write.csv(r, file = paste0("/Users/mac/Desktop/GitHub-English version/Intermediate data/r_forecast/r_", i, ".csv"), row.names = FALSE)
+  write.csv(as.matrix(log_diff_data_1[1699+i,]), file = paste0("/Users/mac/Desktop/GitHub-English version/Intermediate data/Actual differential return/return_", i, ".csv"))
   
   
   print(i)
