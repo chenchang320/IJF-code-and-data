@@ -16,7 +16,7 @@ library(TSP)
 library(rvinecopulib)
 library(quantreg)
 library(fPortfolio)
-data1=read_excel('/Users/mac/Desktop/GitHub-English version/data/Simulation dataset.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-English version/Raw data/Simulation dataset.xlsx')
 select_data=data1[c(3:2676),-1]
 colnames(select_data)=c(1:158)
 select_data=select_data[,c(-23,-74,-133)]
@@ -72,7 +72,7 @@ beta_end=array(0,dim = c(130,974,3))
 
 dataf<-array(0,dim<-c(1700,130,974))
 
-for (j in 967:974) {
+for (j in 1:974) {
   dataf[,,j]<-U[j:(j+1699),]
   RVINE<-RVineStructureSelect(dataf[,,j],c(1),type=0)
   set.seed(321)
@@ -212,7 +212,7 @@ for (j in 967:974) {
   
  
 }
-write.csv(ES, file = '/Users/mac/Desktop/GitHub-English version/data/simulated CVaR with vine.csv', row.names = FALSE)
-write.csv(VaR, file = '/Users/mac/Desktop/GitHub-English version/data/simulated VaR with vine.csv', row.names = FALSE)
+write.csv(ES, file = '/Users/mac/Desktop/GitHub-English version/Intermediate data/simulated CVaR with vine.csv', row.names = FALSE)
+write.csv(VaR, file = '/Users/mac/Desktop/GitHub-English version/Intermediate data/simulated VaR with vine.csv', row.names = FALSE)
 
 
