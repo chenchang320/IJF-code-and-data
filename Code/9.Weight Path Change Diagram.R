@@ -136,8 +136,8 @@ optimize_portfolio_nonnegative <- function(r, tau = 0.05, gamma = 1, lambda = 1,
 
 
 # Take the last "num" as an example
-r = as.matrix(read.csv(paste0('/Users/mac/Desktop/GitHub-English version/data/r_forecast/r_', num, ".csv")))
-log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/GitHub-English version/data/Actual differential return/return_", num, ".csv"))[,-1]
+r = as.matrix(read.csv(paste0('/Users/mac/Desktop/GitHub-English version/Intermediate data/r_forecast/r_', num, ".csv")))
+log_diff_data_final = read.csv(paste0("/Users/mac/Desktop/GitHub-English version/Intermediate data/Actual differential return/return_", num, ".csv"))[,-1]
 result <- greedy_reduce_condition_number(r, cond_threshold = 100, min_assets = 80)
 r_reduced <- result$r_reduced
 selected_indices <- result$selected_indices
