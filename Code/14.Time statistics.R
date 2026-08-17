@@ -21,7 +21,7 @@ library(evir)
 library(quadprog)  
 library(fPortfolio)
 
-data = read.csv('/Users/mac/Desktop/GitHub-English version/data/Actual application dataset.csv')
+data = read.csv('/Users/mac/Desktop/GitHub-English version/Raw data/Actual application dataset.csv')
 data = data[c(-1,-2), -1]
 
 rownames(data) <- data[[1]] 
