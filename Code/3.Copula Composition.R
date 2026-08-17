@@ -15,7 +15,7 @@ library(network)
 library(TSP)
 library(rvinecopulib)
 
-data1=read_excel('/Users/mac/Desktop/GitHub-English version/data/Ten industry dataset.xlsx')
+data1=read_excel('/Users/mac/Desktop/GitHub-English version/Raw data/Ten industry dataset.xlsx')
 select_data=data1[c(1:2674),c(-1)]
 colnames(select_data)=c(1:10)
 
